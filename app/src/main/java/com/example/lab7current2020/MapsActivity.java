@@ -22,9 +22,9 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 
-public class MapsActivity extends AppCompatActivity {
+public class MapsActivity extends FragmentActivity  {
 
-    private GoogleMap mMap;
+    //initialize variable
     SupportMapFragment supportMapFragment;
     FusedLocationProviderClient client;
 
@@ -33,59 +33,69 @@ public class MapsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-
         supportMapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
 
+        //initialize fused Location
         client = LocationServices.getFusedLocationProviderClient(this);
 
-        if (ActivityCompat.checkSelfPermission(MapsActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        //Check permission
+        if (ActivityCompat.checkSelfPermission(MapsActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED) {
+            //get current location when permission is granted
             getCurrentLocation();
-
         } else {
-            ActivityCompat.requestPermissions(MapsActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
+            //request permission when permission is denied
+            ActivityCompat.requestPermissions(MapsActivity.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 44);
         }
-
     }
 
     private void getCurrentLocation() {
-
+        //Initialize task location
         Task<Location> task = client.getLastLocation();
         task.addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(final Location location) {
+                //When success
                 if (location != null) {
-
+                    //sync map
                     supportMapFragment.getMapAsync(new OnMapReadyCallback() {
                         @Override
                         public void onMapReady(GoogleMap googleMap) {
-                            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                            MarkerOptions options = new MarkerOptions().position(latLng)
+                            //Initialize Lat Lng
+                            LatLng latLng = new LatLng(location.getLatitude(),
+                                    location.getLongitude());
+                            //Create marker options
+                            MarkerOptions options = new MarkerOptions()
+                                    .position(latLng)
                                     .title("I am here");
-                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+                            //zoom map scale 15
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
                             googleMap.addMarker(options);
-
                         }
                     });
                 }
             }
         });
-
-
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 44) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 0 && grantResults[0] ==
+                    PackageManager.PERMISSION_GRANTED) {
+                //Get current location when permission granted
                 getCurrentLocation();
-
             }
         }
     }
-}
 
+
+}
 
 
 
